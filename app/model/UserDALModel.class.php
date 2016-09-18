@@ -13,6 +13,13 @@ class UserDALModel extends Model{
 			$user->headimgURL=$User_info['headimgURL'];
 			$user->openId=$User_info['openId'];
 			$user->EmailAddress=$User_info['EmailAddress'];
+			
+			$user->age=$User_info['age'];
+			$user->emotionStatus=$User_info['emotionStatus'];
+			$user->addCountry=$User_info['addCountry'];
+			$user->addProvince=$User_info['addProvince'];
+			$user->addCity=$User_info['addCity'];
+
 			return $user;
 	}
 	//openid查找用户，返回对象

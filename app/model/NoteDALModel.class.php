@@ -16,10 +16,12 @@ class NoteDALModel extends Model{
 			$noteObjFromDbArr['boolUrgent']=$value['boolUrgent'];
 			$noteObjFromDbArr['voiceURL']=$value['voiceURL'];
 			$noteObjFromDbArr['boolVoice']=$value['boolVoice'];
-			// $noteObjFromDbArr['backGroundId']=$value['backGroundId'];
-			// $noteObjFromDbArr['boolBackGround']=$value['boolBackGround'];
 			$noteObjFromDbArr['noteBoardId']=$value['noteBoardId'];
 			$noteObjFromDbArr['noteTypeId']=$value['noteTypeId'];
+
+			$noteObjFromDbArr['boolOpen']=$value['boolOpen'];
+			$noteObjFromDbArr['noteUpdateTime']=$value['noteUpdateTime'];
+			$noteObjFromDbArr['likeCount']=$value['likeCount'];
 
 			$objArr[]=$noteObjFromDbArr;
 		}
@@ -37,10 +39,12 @@ class NoteDALModel extends Model{
 		$noteObjFromDb->boolUrgent=$noteObjArr['boolUrgent'];
 		$noteObjFromDb->voiceURL=$noteObjArr['voiceURL'];
 		$noteObjFromDb->boolVoice=$noteObjArr['boolVoice'];
-		// $noteObjFromDb->backGroundId=$noteObjArr['backGroundId'];
-		// $noteObjFromDb->boolBackGround=$noteObjArr['boolBackGround'];
 		$noteObjFromDb->noteBoardId=$noteObjArr['noteBoardId'];
 		$noteObjFromDb->noteTypeId=$noteObjArr['noteTypeId'];
+		$noteObjFromDb->boolOpen=$noteObjArr['boolOpen'];
+		$noteObjFromDb->noteUpdateTime=$noteObjArr['noteUpdateTime'];
+		$noteObjFromDb->likeCount=$noteObjArr['likeCount'];
+
 		return $noteObjFromDb;
 	}
 	public function insertNote($noteObjArr,$noteNum){
@@ -50,6 +54,8 @@ class NoteDALModel extends Model{
 
 				$noteObj=$this->selectByNoteBoardIdNew($noteObjArr['noteBoardId'],$noteNum);
 				return $noteObj;
+		}else{
+			return false;
 		}
 	}
 

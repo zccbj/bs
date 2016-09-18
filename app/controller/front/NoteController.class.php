@@ -27,7 +27,7 @@ class NoteController extends BackPlatformController{
 		$userId=$_POST['userId'];
 		$data=$_POST['data'];
 		//$userId=1;
-		//$data='{"noteStatus":"1","pictureURL":"","boolPicture":"","noteContent":"你好，世界","boolUrgent":"","voiceURL":"","boolVoice":"","noteTypeId":"2"}';
+		//$data='{"noteStatus":"1","pictureURL":"","boolPicture":"","noteContent":"你好，世界","boolUrgent":"","voiceURL":"","boolVoice":"","noteTypeId":"2","boolOpen":"1","noteUpdateTime":null,"likeCount":"1","noteBoardId":"7"}';
 		$data= json_decode($data);
 
  		$noteObj=new NoteObjModel;
@@ -42,6 +42,10 @@ class NoteController extends BackPlatformController{
 		$noteObj->voiceURL=$data->voiceURL;
 		$noteObj->boolVoice=$data->boolVoice;
 		$noteObj->noteTypeId=$data->noteTypeId;
+		$noteObj->boolOpen=$data->boolOpen;
+		$noteObj->noteUpdateTime=$data->noteUpdateTime;
+		$noteObj->likeCount=$data->likeCount;
+
 		//var_dump($noteObj);
 		$noteBLLModel=new NoteBLLModel;
 		$result=$noteBLLModel->addNote($userId,$noteObj);
@@ -49,12 +53,12 @@ class NoteController extends BackPlatformController{
 	}
 	public function uNoteAction(){
 		$data=$_POST['data'];
-		//$data='{"noteId":"1","noteBoardId":"1","noteStatus":"1","pictureURL":"111","boolPicture":"","noteContent":"你好，世界","boolUrgent":"","voiceURL":"","boolVoice":"","noteTypeId":"2"}';
+		$data='{"noteId":"7","noteStatus":"1","pictureURL":"","boolPicture":"","noteContent":"你好，界","boolUrgent":"","voiceURL":"","boolVoice":"","noteTypeId":"2","boolOpen":"1","noteUpdateTime":null,"likeCount":"1","noteBoardId":"7"}';
 		$data= json_decode($data);
  		$noteObj=new NoteObjModel;
  		$noteObj->noteId=$data->noteId;
  		$noteObj->noteBoardId=$data->noteBoardId;
- 		$noteObj->noteDateTime=date('Y-m-d H:i:s');
+ 		$noteObj->noteDateTime=$data->noteDateTime;
  		$noteObj->noteStatus=$data->noteStatus;
 		$noteObj->pictureURL=$data->pictureURL;
 		$noteObj->boolPicture=$data->boolPicture;
@@ -63,6 +67,10 @@ class NoteController extends BackPlatformController{
 		$noteObj->voiceURL=$data->voiceURL;
 		$noteObj->boolVoice=$data->boolVoice;
 		$noteObj->noteTypeId=$data->noteTypeId;
+		$noteObj->boolOpen=$data->boolOpen;
+		$noteObj->noteUpdateTime=date('Y-m-d H:i:s');
+		$noteObj->likeCount=$data->likeCount;
+
 
 		$noteBLLModel=new NoteBLLModel;
 		$result=$noteBLLModel->modifyNote($noteObj);

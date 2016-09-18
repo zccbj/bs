@@ -31,7 +31,7 @@ class Model {
 	public function autoDelete($pk_value) {
 		//delete from 当前表名 where 主键字段=’主键字段值’
 		$sql = "delete from {$this->table()} where `{$this->fields['pk']}`='{$pk_value}'";
-		return $this->db->query($sql);
+		return $this->db->affectedRows($sql);
 	}
 	public function autoSelectRow($pk_value) {
 		//select * from 当前表名 where 主键字段=’主键字段值’

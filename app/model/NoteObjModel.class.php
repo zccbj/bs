@@ -10,10 +10,12 @@
 	private $boolUrgent;
 	private $voiceURL;
 	private $boolVoice;
-	// private $backGroundId;
-	// private $boolBackGround;
 	private $noteBoardId;
 	private $noteTypeId;
+
+	private $boolOpen;
+	private $noteUpdateTime;
+	private $likeCount;
 
 	public function __set($key,$value){
 		$this->$key=$value;

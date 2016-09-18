@@ -12,6 +12,13 @@ class UserBLLModel{
 		$userArr['headimgURL']=$user->headimgURL;
 		$userArr['openId']=$user->openId;
 		$userArr['EmailAddress']=$user->EmailAddress;
+		
+		$userArr['age']=$user->age;
+		$userArr['emotionStatus']=$user->emotionStatus;
+		$userArr['addCountry']=$user->addCountry;
+		$userArr['addProvince']=$user->addProvince;
+		$userArr['addCity']=$user->addCity;
+
 		return $userArr;
 	}
 
@@ -33,29 +40,36 @@ class UserBLLModel{
 	$noteArr['boolUrgent']=$noteObj->boolUrgent;
 	$noteArr['voiceURL']=$noteObj->voiceURL;
 	$noteArr['boolVoice']=$noteObj->boolVoice;
-	// $noteArr['backGroundId']=$noteObj->backGroundId;
-	// $noteArr['boolBackGround']=$noteObj->boolBackGround;
 	$noteArr['noteBoardId']=$noteObj->noteBoardId;
 	$noteArr['noteTypeId']=$noteObj->noteTypeId;
+
+			$noteObjArr['boolOpen']=$noteObj->boolOpen;
+		$noteObjArr['noteUpdateTime']=$noteObj->noteUpdateTime;
+		$noteObjArr['likeCount']=$noteObj->likeCount;
 		return $noteArr;
 	}
-	public function userArr_json($userarr,$error=NULL){
-		$sign=implode('',$userarr);
-		//有值为真
+	// public function userArr_json($userarr,$message=NULL){
+	// 	$sign=implode('',$userarr);
+	// 	//有值为真
 		 
-		if ($sign) {
-			// $userarr=$this->userObj_Arr($userFromDb);
-			$userarr=array("sign"=>"1","data"=>$userarr);
-	      	$message=json_encode($userarr,JSON_UNESCAPED_UNICODE);//JSON_UNESCAPED_UNICODE中文防止乱码
-	      	$message=str_replace('\\u0000', '', $message);
-	      	return $message;
+	// 	if ($sign) {
+	// 		return ResponseTool::show(1,'注册成功',$userarr);
 
-		}else{
-			$message=array("sign"=>"0","data"=>$error);
-			$message=json_encode($message,JSON_UNESCAPED_UNICODE);
-			return $message;
-		}
-	}
+
+	// 		// var_dump($a);
+	// 		// die();
+	// 		// $userarr=array("sign"=>"1","data"=>$userarr);
+	//   //     	$message=json_encode($userarr,JSON_UNESCAPED_UNICODE);//JSON_UNESCAPED_UNICODE中文防止乱码
+	//   //     	$message=str_replace('\\u0000', '', $message);
+	//   //     	return $message;
+
+	// 	}else{
+	// 		return ResponseTool::show(0,'微信注册失败',$userarr);
+	// 		// $message=array("sign"=>"0","data"=>$error);
+	// 		// $message=json_encode($message,JSON_UNESCAPED_UNICODE);
+	// 		// return $message;
+	// 	}
+	// }
 	//提取代码。注册时默认在NoteBoard添加数据
 	private function addNoteBoard($userFromDb){
 		$userId=$userFromDb->userId;
@@ -64,11 +78,8 @@ class UserBLLModel{
 		$noteBoardObj->boardBackGroundId=1;
 		$noteBoardDALModel=new NoteBoardDALModel;
 		$noteBoardObjFromDb=$noteBoardDALModel->InsertNoteBoard($this->NoteBoardObj_Arr($noteBoardObj));
-		if(!$noteBoardObjFromDb) {
-			echo 'error:001';
-		}else{
 			return $noteBoardObjFromDb;
-		}
+
 	}
 	//提取代码。注册时默认在note中添加数据
 	private function addNote($noteBoardObjFromDb){
@@ -85,13 +96,16 @@ class UserBLLModel{
 
 		$noteObjFromDb=$noteDALModel->insertNote($this->NoteObj_Arr($noteObj),$noteNum);
 		$noteObjFromDbArr=$this->NoteObj_Arr($noteObjFromDb);
-		if ($noteObjFromDbArr) {
+
 			return $noteObjFromDbArr;
-		}else{
-			return false;
-		}
 	}
-	//微信登入
+	/**
+	 * 微信登入
+	 *查询用户是否存在，
+	 *1不存在，先添加，后登入
+	 *2存在，直接登入
+	 *结果:肯定能登入
+	 */
 	public function signWc($userFromView){
 		$userDALModel=new UserDALModel;
 		$userFromDb=new UserObjModel;
@@ -108,7 +122,8 @@ class UserBLLModel{
 			$noteObjFromDbArr=$this->addNote($noteBoardObjFromDb);
 
 		}
-		return $this->userArr_json($userarr);
+		return ResponseTool::show(1,'微信登入成功',$userarr);
+		// return $this->userArr_json($userarr);
 	}
 	//pc登入
 	public function signPc($userFromView){
@@ -116,30 +131,44 @@ class UserBLLModel{
 		$userFromDb=new UserObjModel;
 		$userFromDb=$userDALModel->checkByAccount($userFromView->account);
 		$userarr=($userFromDb->password==$userFromView->password)?$this->userObj_Arr($userFromDb):NULL;
-		return $this->userArr_json($userarr);
+		// return $this->userArr_json($userarr);
+
+		if ($userarr) {
+			return ResponseTool::show(1,'pc登入成功',$userarr);
+		}else{
+			return ResponseTool::show(402,'pc登入失败',NULL);
+		}
 
 	}
-	//注册pc，可能会出现用户已存在
+	/**pc注册
+	 * 用户已存在，则返回false。
+	*	用户不存在，则返回数组
+	 */
 	public function registerPc($userFromView){
+		$message;
 		$userDALModel=new UserDALModel;
 		$userFromDb=$userDALModel->InsertByUser($this->userObj_Arr($userFromView));
-		$error=NULL;
-		if (!$userFromDb) {
-			$error="{error:'用户已存在'}";
+		if ($userFromDb) {
+			//在noteBoard里插入数据
+			$noteBoardObjFromDb=$this->addNoteBoard($userFromDb);
+			//在note里添加数据
+			$noteObjFromDbArr=$this->addNote($noteBoardObjFromDb);
+			return ResponseTool::show(1,'pc注册成功',$this->userObj_Arr($userFromDb));
+		}else{
+			return ResponseTool::show(401,'用户已存在',NULL);
 		}
-		//在noteBoard里插入数据
-		$this->addNoteBoard($userFromDb);
-		//在note里添加数据
-		$noteObjFromDbArr=$this->addNote($noteBoardObjFromDb);
 
-		return $this->userArr_json($this->userObj_Arr($userFromDb),$error);
+		
+		
+
+	//	return $this->userArr_json($this->userObj_Arr($userFromDb),$error);
 
 	}
 	//修改用户全部信息
 	public function modifyUser($userFromView){
 		$userDALModel=new UserDALModel;
-		$userFromDbArr=$userDALModel->ModifyByUser($this->userObj_Arr($userFromView));
-		return $this->userArr_json($userFromDbArr);
+		$userFromDb=$userDALModel->ModifyByUser($this->userObj_Arr($userFromView));
+		return ResponseTool::show(1,'user修改成功',$this->userObj_Arr($userFromDb));
 	}
 	//修改单个信息
 	public function modifyOne($userFromView){
@@ -153,13 +182,20 @@ class UserBLLModel{
 		}
 		$userDALModel=new UserDALModel;
 		$userFromDb=$userDALModel->ModifyByUser($userArr);
-		return $this->userArr_json($this->userObj_Arr($userFromDb));
+		return ResponseTool::show(1,'user修改成功',$this->userObj_Arr($userFromDb));
 	}
 	//通过id查用户信息
 	public function infoUser($userFromView){
 		$userDALModel=new UserDALModel;
 		$userFromDb=$userDALModel->SelectByUserId($userFromView->userId);
-		return $this->userArr_json($this->userObj_Arr($userFromDb));
+		if ($userFromDb) {
+			return ResponseTool::show(1,'user查询成功',$this->userObj_Arr($userFromDb));
+		}else{
+			//查无此人
+			return false;
+		}
+		
+	//	return $this->userArr_json($this->userObj_Arr($userFromDb));
 	}
 
 }

@@ -1,16 +1,25 @@
 <?php 
 class UserController extends BackPlatformController{
-	//登入
+	/**wx、pc用户登入
+	 * 参数:wehcat,openId,headimgURL,nickName,addCountry,addProvice,addCity,
+	 */
 	public function signAction(){
 		$from=$_POST['from'];
 		if ($from=='wechat') {
 				$openId=$_POST['openId'];
 				$headimgURL=$_POST['headimgURL'];
 				$nickName=$_POST['nickName'];
+				@$addCountry=$_POST['addCountry'];
+				@$addProvince=$_POST['addProvince'];
+				@$addCity=$_POST['addCity'];
+
 				$userFromView=new UserObjModel;
 				$userFromView->openId=$openId;
 				$userFromView->headimgURL=$headimgURL;
 				$userFromView->nickName=$nickName;
+				$userFromView->addCountry=$addCountry;
+				$userFromView->addProvince=$addProvince;
+				$userFromView->addCity=$addCity;
 				$userBLLModel=new UserBLLModel;
 				$result=$userBLLModel->signWc($userFromView);
 				echo $result;
@@ -25,6 +34,11 @@ class UserController extends BackPlatformController{
 			echo $result;
 		}
 	}
+	/**
+	 * pc注册（微信不需要注册）
+	 *参数：用户用、密码
+	 *
+	 */
 	public function registerAction(){
 		$account=$_POST['account'];
 		$password=$_POST['password'];
@@ -36,9 +50,9 @@ class UserController extends BackPlatformController{
 		echo $result;
 	}
 	public function modifyAction(){
-		 $data=$_POST['data'];
+		  $data=$_POST['data'];
 		// echo $data;
-		//$data='{"userId":"45","nickName":"66"}';
+		// $data='{"userId":"46","nickName":"32"}';
 		$data=json_decode($data);//转换为为了data对象
 		$userFromView=new UserObjModel;
 		$userFromView->userId=$data->userId;
@@ -55,8 +69,15 @@ class UserController extends BackPlatformController{
 		echo $result;
 
 	}
+	/**查询user信息
+	 * 
+	 */
 	public function infouserAction(){
 		$userId=$_POST['userId'];
+		// if ($userId==null) {
+		// 	echo 'aaa';
+		// 	die();
+		// }
 		$userFromView=new UserObjModel;
 		$userFromView->userId=$userId;
 		$userBLLModel=new UserBLLModel;
